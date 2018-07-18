@@ -57,10 +57,12 @@ The script was tested on:
 - Ubuntu 18.04 (bionic)
 - Debian 9.5 (stretch)
 
+
 ## Caveats
 
 The script displays the information in a human readable form. 
 It is not intended to be displayed in a machine-readable form, so the output format may change with time.
+
 
 ## License
 
