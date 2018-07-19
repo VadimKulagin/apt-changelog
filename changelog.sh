@@ -8,7 +8,7 @@
 # Usage:
 # ./changelog.sh [-l]
 #
-# Version: 1.0.0
+# Version: 1.0.1
 #
 # Copyright (C) 2018, Vadim Kulagin
 #
@@ -50,7 +50,7 @@ for LINE in $LIST; do
         # If the original version string was not found in the changelog
         # then we cut out the distro-specific tail from the version string.
         if ! echo "$CHANGELOG" | grep -q "$CUR_VER"; then
-            CUR_VER="$(echo $CUR_VER | grep -oiP '\d.+(?=ubuntu.*)')"
+            CUR_VER="$(echo $CUR_VER | grep -oiP '\d.+(?=(?:[+]|ubuntu).*)')"
             echo "Short current version: $CUR_VER"
             IS_FULL_VERSION=0
         fi
