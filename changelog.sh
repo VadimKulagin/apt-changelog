@@ -8,7 +8,7 @@
 # Usage:
 # ./changelog.sh [-l]
 #
-# Version: 1.0.1
+# Version: 1.0.2
 #
 # Copyright (C) 2018, Vadim Kulagin
 #
@@ -32,20 +32,17 @@ for LINE in $LIST; do
         exit 1
     fi
 
-
     PKG=$(echo "$LINE" | grep -oP '^(.+)(?=\/)')
-
 
     CUR_VER=$(echo "$LINE" | grep -oP '(?<=\: )\d.+(?=\]$)')
     echo "Current version: $CUR_VER"
     IS_FULL_VERSION=1
 
-
     if [ -n "$PKG" ] && [ -n "$CUR_VER" ]; then
 
         # Use "apt-get" instead of "apt" for compatibility with debian 8
         CHANGELOG="$(apt-get changelog "$PKG" 2>/dev/null | tail -n +2)"
-
+        LOG=''
 
         # If the original version string was not found in the changelog
         # then we cut out the distro-specific tail from the version string.
@@ -55,31 +52,20 @@ for LINE in $LIST; do
             IS_FULL_VERSION=0
         fi
 
-
-        LOG=''
-
-
         if [ -n "$CUR_VER" ]; then
-
-            if echo "$CHANGELOG" | grep -q "$CUR_VER"; then
-                if [ "$IS_FULL_VERSION" = 1 ]; then
-                    LOG=$(echo "$CHANGELOG" | sed "/($CUR_VER)/q")
-                else
-                    LOG=$(echo "$CHANGELOG" | sed "/($CUR_VER/q")
-                fi
-            else
+            if ! echo "$CHANGELOG" | grep -q "$CUR_VER"; then
                 # If the version string was not found in the changelog
                 # then we cut out the last part of the version string.
-                # And then we scan changelog in reverse order for
-                # grabbing all lines after the first occurrence
-                # of the version string.
-                # And finally we reverse the result back to the original order.
                 CUR_VER="$(echo $CUR_VER | grep -oP '.+(?=[.-].+)')"
                 echo "Very short current version: $CUR_VER"
-                LOG="$(echo "$CHANGELOG" | tac | sed "1,/$CUR_VER/d" | tac)"
             fi
         fi
 
+        # We scan the changelog in the reverse order for
+        # grabbing all the lines after the first occurrence
+        # of the version string.
+        # And finally we reverse the result back to the original order.
+        LOG="$(echo "$CHANGELOG" | tac | sed "1,/$CUR_VER/d" | tac)"
 
         if [ "$USE_LESS" ]; then
             echo "$LOG" | less
