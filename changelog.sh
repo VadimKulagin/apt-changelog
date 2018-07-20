@@ -4,11 +4,12 @@
 #
 # Options:
 # -l    Use `less` for each package
+# -d    Show a description for each package
 #
 # Usage:
 # ./changelog.sh [-l]
 #
-# Version: 1.0.2
+# Version: 1.0.3
 #
 # Copyright (C) 2018, Vadim Kulagin
 #
@@ -19,11 +20,13 @@
 
 # Main parameters
 USE_LESS=''
+SHOW_DESCRIPTION=''
 SPECIFIED_PACKAGES=()
 
 for ARG in "$@"; do
     case "$ARG" in
         '-l') USE_LESS='1' ;;
+        '-d') SHOW_DESCRIPTION='1' ;;
         *) SPECIFIED_PACKAGES+=("$ARG")
     esac
 done
@@ -41,13 +44,21 @@ for LINE in ${LIST}; do
 
     PKG=$(echo "$LINE" | grep -oP '^(.+)(?=\/)')
 
+    # If the packages were specified.
     if [ -n "$SPECIFIED_PACKAGES" ]; then
         if ! [[ " ${SPECIFIED_PACKAGES[@]} " =~ " $PKG " ]]; then
+            # If the current package was not specified, then we skip it.
             continue
         fi
     fi
 
+    # Show the line with the name of the package, its new and old versions.
     echo "$LINE"
+
+    # Display a brief description of the package, if necessary.
+    if [ "$SHOW_DESCRIPTION" = '1' ]; then
+        echo "$(apt show "$PKG" 2>/dev/null | grep -E '^Description: ')"
+    fi
 
     CUR_VER=$(echo "$LINE" | grep -oP '(?<=\: )\d.+(?=\]$)')
     echo "Current version: $CUR_VER"
@@ -81,6 +92,8 @@ for LINE in ${LIST}; do
         # of the version string.
         # And finally we reverse the result back to the original order.
         LOG="$(echo "$CHANGELOG" | tac | sed "1,/$CUR_VER/d" | tac)"
+
+        echo ''
 
         if [ "$USE_LESS" ]; then
             echo "$LOG" | less
