@@ -3,7 +3,7 @@
 # The script for visualizing the list of changes to apt packages that need to be updated.
 #
 # Options:
-# -l    use `less` for each package
+# -l    Use `less` for each package
 #
 # Usage:
 # ./changelog.sh [-l]
@@ -17,15 +17,22 @@
 #
 # https://github.com/VadimKulagin/apt-changelog
 
-[ "$1" = "-l" ] && USE_LESS="1" || USE_LESS=""
+# Main parameters
+USE_LESS=''
+SPECIFIED_PACKAGES=()
+
+for ARG in "$@"; do
+    case "$ARG" in
+        '-l') USE_LESS='1' ;;
+        *) SPECIFIED_PACKAGES+=("$ARG")
+    esac
+done
 
 REPLACER='?'
 LIST=$(apt list --upgradable 2>/dev/null | tail -n +2 | tr " " "$REPLACER")
 
-for LINE in $LIST; do
+for LINE in ${LIST}; do
     LINE=$(echo "$LINE" | tr "$REPLACER" " ")
-
-    echo "$LINE"
 
     if [ -z "$LINE" ]; then
         echo "Error: empty line. List: $LIST"
@@ -33,6 +40,14 @@ for LINE in $LIST; do
     fi
 
     PKG=$(echo "$LINE" | grep -oP '^(.+)(?=\/)')
+
+    if [ -n "$SPECIFIED_PACKAGES" ]; then
+        if ! [[ " ${SPECIFIED_PACKAGES[@]} " =~ " $PKG " ]]; then
+            continue
+        fi
+    fi
+
+    echo "$LINE"
 
     CUR_VER=$(echo "$LINE" | grep -oP '(?<=\: )\d.+(?=\]$)')
     echo "Current version: $CUR_VER"
@@ -46,17 +61,17 @@ for LINE in $LIST; do
 
         # If the original version string was not found in the changelog
         # then we cut out the distro-specific tail from the version string.
-        if ! echo "$CHANGELOG" | grep -q "$CUR_VER"; then
-            CUR_VER="$(echo $CUR_VER | grep -oiP '\d.+(?=(?:[+]|ubuntu).*)')"
+        if ! (echo "$CHANGELOG" 2>/dev/null | grep -q "$CUR_VER"); then
+            CUR_VER="$(echo ${CUR_VER} | grep -oiP '\d.+(?=(?:[+]|ubuntu).*)')"
             echo "Short current version: $CUR_VER"
             IS_FULL_VERSION=0
         fi
 
         if [ -n "$CUR_VER" ]; then
-            if ! echo "$CHANGELOG" | grep -q "$CUR_VER"; then
+            if ! (echo "$CHANGELOG" 2>/dev/null | grep -q "$CUR_VER"); then
                 # If the version string was not found in the changelog
                 # then we cut out the last part of the version string.
-                CUR_VER="$(echo $CUR_VER | grep -oP '.+(?=[.-].+)')"
+                CUR_VER="$(echo ${CUR_VER} | grep -oP '.+(?=[.-].+)')"
                 echo "Very short current version: $CUR_VER"
             fi
         fi
