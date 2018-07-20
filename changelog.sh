@@ -4,7 +4,7 @@
 #
 # Options:
 # -l    Use `less` for each package
-# -d    Show a description for each package
+# -d    Do not show a description for each package
 #
 # Usage:
 # ./changelog.sh [-l]
@@ -20,13 +20,13 @@
 
 # Main parameters
 USE_LESS=''
-SHOW_DESCRIPTION=''
+SHOW_DESCRIPTION='1'
 SPECIFIED_PACKAGES=()
 
 for ARG in "$@"; do
     case "$ARG" in
         '-l') USE_LESS='1' ;;
-        '-d') SHOW_DESCRIPTION='1' ;;
+        '-d') SHOW_DESCRIPTION='' ;;
         *) SPECIFIED_PACKAGES+=("$ARG")
     esac
 done
