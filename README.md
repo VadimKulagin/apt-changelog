@@ -9,6 +9,10 @@ The list of packages is taken from the output of `apt list --upgradable`.
 
 ## Usage
 
+```bash
+./changelog.sh [-d] [-l] [PACKAGE]...
+```
+
 If you have packages waiting for updates and want to find out what they have changed, then simply run the script.
 
 ### Display the changelog as a single list for all packages
@@ -21,6 +25,7 @@ You will see something like this:
 
 ```
 netplan.io/bionic-updates 0.36.3 amd64 [upgradable from: 0.36.2]
+Description: YAML network configuration abstraction for various backends
 Current version: 0.36.2
 netplan.io (0.36.3) bionic; urgency=medium
 
@@ -28,19 +33,22 @@ netplan.io (0.36.3) bionic; urgency=medium
   * tests/integration.py: fix test_eth_and_bridge autopkg test harder.
   * tests/integration.py: fix test_mix_bridge_on_bond autopkgtest too.
 
-netplan.io (0.36.2) bionic; urgency=medium
-
 =====================================================
 
 squashfs-tools/bionic-updates 1:4.3-6ubuntu0.18.04.1 amd64 [upgradable from: 1:4.3-6]
+Description: Tool to create and append to squashfs filesystems
 Current version: 1:4.3-6
 squashfs-tools (1:4.3-6ubuntu0.18.04.1) bionic; urgency=medium
 
   * debian/patches/0010-use-macros-not-raw-octal-with-chmod.patch,
 
-squashfs-tools (1:4.3-6) unstable; urgency=medium
-
 =====================================================
+```
+
+### Display the changelog for specific packages
+
+```bash
+./changelog.sh netplan.io squashfs-tools
 ```
 
 ### Display the changelog with the `less` for each individual package
@@ -48,6 +56,15 @@ squashfs-tools (1:4.3-6) unstable; urgency=medium
 ```bash
 ./changelog.sh -l
 ```
+
+
+## Options
+
+Option  | Description
+--------|-------------
+-d      | Do not show a description for each package (can increase performance)
+-l      | Use `less` to display the changelog of each package
+PACKAGE | A package name. Can be specified several names separated by a space
 
 
 ## Compatibility

@@ -2,12 +2,13 @@
 #
 # The script for visualizing the list of changes to apt packages that need to be updated.
 #
-# Options:
-# -l    Use `less` for each package
-# -d    Do not show a description for each package
-#
 # Usage:
-# ./changelog.sh [-l]
+# ./changelog.sh [-d] [-l] [PACKAGE]...
+#
+# Options:
+# -d        Do not show a description for each package (can increase performance)
+# -l        Use `less` to display the changelog of each package
+# PACKAGE   A package name. Can be specified several names separated by a space
 #
 # Version: 1.0.3
 #
