@@ -10,7 +10,7 @@
 # -l        Use `less` to display the changelog of each package
 # PACKAGE   A package name. Can be specified several names separated by a space
 #
-# Version: 1.0.3
+# Version: 1.0.4
 #
 # Copyright (C) 2018, Vadim Kulagin
 #
@@ -79,14 +79,18 @@ for LINE in ${LIST}; do
             IS_FULL_VERSION=0
         fi
 
-        if [ -n "$CUR_VER" ]; then
-            if ! (echo "$CHANGELOG" 2>/dev/null | grep -q "$CUR_VER"); then
-                # If the version string was not found in the changelog
-                # then we cut out the last part of the version string.
-                CUR_VER="$(echo ${CUR_VER} | grep -oP '.+(?=[.-].+)')"
-                echo "Very short current version: $CUR_VER"
+        for i in 1 2; do
+            if [ -n "$CUR_VER" ]; then
+                if ! (echo "$CHANGELOG" 2>/dev/null | grep -q "$CUR_VER"); then
+                    # If the version string was not found in the changelog
+                    # then we cut out the last part of the version string.
+                    CUR_VER="$(echo ${CUR_VER} | grep -oP '.+(?=[.\-\+].+)')"
+                    echo "Very short current version: $CUR_VER"
+                else
+                    break
+                fi
             fi
-        fi
+        done
 
         # We scan the changelog in the reverse order for
         # grabbing all the lines after the first occurrence
